@@ -16,6 +16,25 @@ Cross-platform BarcodeScanner for Cordova / PhoneGap.
 
 This is a fork of [phonegap/phonegap-plugin-barcodescanner](https://github.com/phonegap/phonegap-plugin-barcodescanner) with the only difference being the design of the scaning interface.
 
+## Changes in this fork (Android)
+
+- Modern UPI-style scanner UI
+  - Corner-only frame with rounded green bars (centered overlay)
+  - Status text repositioned above the scan frame
+  - Top bar with Back (left), Flip Camera and Torch (right)
+- Theme color updates
+  - Laser and corner bars use `#2ABA66`
+- Icon updates
+  - Density-specific icons added for crisp 24dp rendering
+- Back button support
+  - Back button added to the layout; click handling implemented in the Android AAR (`CaptureActivity`) to cancel and close the scanner
+- Gradle maintenance
+  - Replaced `jcenter()` with `mavenCentral()` in `src/android/barcodescanner.gradle`
+
+Notes
+- Visual/layout changes live in `src/android/barcodescanner-release-2.1.5/res/...` inside this plugin.
+- Back button functionality requires a small code change in the AAR (`CaptureActivity`). The prebuilt AAR included in this repo contains that change.
+
 ## Customize it yourself
 
 To customize the design layout for the scanning interface, edit this file: `src/android/barcodescanner-release-2.1.5/res/layout/capture.xml`, then run this commands:
@@ -26,6 +45,47 @@ To customize the design layout for the scanning interface, edit this file: `src/
 The button icons are in the directory `src/android/barcodescanner-release-2.1.5/res/drawable`.
 
 After you change an icon, or anything else in the folder `src/android/barcodescanner-release-2.1.5`, you need to run the previous commands as well.
+
+
+### Rebuilding the Android AAR on Windows (PowerShell)
+
+If you only changed resources (layouts, drawables, colors) in `src/android/barcodescanner-release-2.1.5`:
+
+```
+cd src/android/barcodescanner-release-2.1.5
+Remove-Item ..\barcodescanner-release-2.1.5.aar -ErrorAction SilentlyContinue
+Compress-Archive -Path * -DestinationPath ..\barcodescanner-release-2.1.5.zip -Force
+Move-Item ..\barcodescanner-release-2.1.5.zip ..\barcodescanner-release-2.1.5.aar -Force
+```
+
+Then re-add the plugin to your app:
+
+```
+cordova plugin remove cordova-plugin-qr-barcode-scanner
+cordova plugin add <path-or-repo-url>
+cordova run android --device
+```
+
+If you changed Java code in the AAR (e.g., back button handling in `CaptureActivity`), build from AAR sources with JDK 8:
+
+1. Set Java 8 in your shell
+   - PowerShell:
+     ```
+     $env:JAVA_HOME="C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.x-hotspot"
+     $env:Path="$env:JAVA_HOME\\bin;$env:Path"
+     java -version
+     ```
+2. From the AAR source project root (barcodescanner-lib-aar):
+   ```
+   .\gradlew.bat clean :barcodescanner:assembleRelease --no-daemon
+   ```
+3. Copy the output AAR to this plugin as `src/android/barcodescanner-release-2.1.5.aar` (or update `plugin.xml` to match your filename) and re-add the plugin.
+
+Tip: If Gradle complains about `sdk.dir`, create/update `local.properties` in the AAR source root:
+
+```
+sdk.dir=C:/Users/<YOUR_USER>/AppData/Local/Android/Sdk
+```
 
 
 
