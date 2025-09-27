@@ -57,7 +57,7 @@
     <color name="result_view">#b0000000</color>
     <color name="status_text">#ffffffff</color>
     <color name="transparent">#00000000</color>
-    <color name="viewfinder_laser">#ff00ff00</color>
+    <color name="viewfinder_laser">#ff2ABA66</color>
     <color name="viewfinder_mask">#60000000</color>
     <!-- From: file:/Users/eddyverbruggen/sandboxes/barcodescanner-lib-aar/barcodescanner/src/main/res/values/dimens.xml -->
     <eat-comment/>

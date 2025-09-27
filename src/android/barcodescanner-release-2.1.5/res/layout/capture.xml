@@ -26,17 +26,74 @@
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"/>
 
-  <!-- Overlay rounded border frame to resemble UPI scanner UI -->
+  <!-- Overlay: modern UPI-style corner-only scanner frame -->
   <FrameLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:layout_gravity="center">
 
-    <View
-        android:layout_width="260dp"
-        android:layout_height="260dp"
-        android:layout_gravity="center"
-        android:background="@drawable/viewfinder_border" />
+    <!-- Outer frame for corners (placed OUTSIDE the scan rect) -->
+    <FrameLayout
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center">
+
+      <!-- Inner placeholder to visualize the intended scan rect (no border) -->
+      <View
+          android:layout_width="260dp"
+          android:layout_height="260dp"
+          android:layout_gravity="center"
+          android:background="@android:color/transparent" />
+
+      <!-- top-left corner: horizontal + vertical bars -->
+      <View
+          android:layout_width="40dp"
+          android:layout_height="6dp"
+          android:layout_gravity="top|left"
+          android:background="@drawable/corner_bar" />
+      <View
+          android:layout_width="6dp"
+          android:layout_height="40dp"
+          android:layout_gravity="top|left"
+          android:background="@drawable/corner_bar" />
+
+      <!-- top-right corner -->
+      <View
+          android:layout_width="40dp"
+          android:layout_height="6dp"
+          android:layout_gravity="top|right"
+          android:background="@drawable/corner_bar" />
+      <View
+          android:layout_width="6dp"
+          android:layout_height="40dp"
+          android:layout_gravity="top|right"
+          android:background="@drawable/corner_bar" />
+
+      <!-- bottom-left corner -->
+      <View
+          android:layout_width="40dp"
+          android:layout_height="6dp"
+          android:layout_gravity="bottom|left"
+          android:background="@drawable/corner_bar" />
+      <View
+          android:layout_width="6dp"
+          android:layout_height="40dp"
+          android:layout_gravity="bottom|left"
+          android:background="@drawable/corner_bar" />
+
+      <!-- bottom-right corner -->
+      <View
+          android:layout_width="40dp"
+          android:layout_height="6dp"
+          android:layout_gravity="bottom|right"
+          android:background="@drawable/corner_bar" />
+      <View
+          android:layout_width="6dp"
+          android:layout_height="40dp"
+          android:layout_gravity="bottom|right"
+          android:background="@drawable/corner_bar" />
+
+    </FrameLayout>
 
   </FrameLayout>
 
@@ -212,8 +269,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center" 
-        android:layout_gravity="center|center_horizontal"
-        android:paddingBottom="280dip"
+        android:layout_gravity="center"
+        android:layout_marginBottom="180dp"
         android:background="@color/transparent"
         android:text="@string/msg_default_status"
         android:textColor="@android:color/white" />
@@ -222,9 +279,10 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_gravity="top"
+      android:layout_marginTop="@dimen/standard_padding"
       android:orientation="horizontal"
-      android:paddingLeft="@dimen/standard_padding"
-      android:paddingRight="@dimen/standard_padding"
+      android:paddingLeft="6dp"
+      android:paddingRight="6dp"
       android:paddingTop="@dimen/standard_padding"
       android:gravity="center_vertical">
 
@@ -234,6 +292,11 @@
         android:alpha="0.8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:padding="4dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:drawableLeft="@drawable/back"
         android:drawableStart="@drawable/back"
         android:visibility="visible" />
@@ -249,8 +312,11 @@
         android:alpha="0.8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/standard_padding"
-        android:layout_marginEnd="@dimen/standard_padding"
+        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
+        android:padding="3dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:drawableStart="@drawable/flip_camera"
         android:drawableLeft="@drawable/flip_camera"
         android:visibility="invisible" />
@@ -260,6 +326,9 @@
         android:alpha="0.8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
         android:drawableLeft="@drawable/toggle_torch"
         android:drawableStart="@drawable/toggle_torch"
         android:visibility="invisible"/>
