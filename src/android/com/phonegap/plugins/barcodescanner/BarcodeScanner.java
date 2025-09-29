@@ -14,10 +14,14 @@ import org.json.JSONObject;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.pm.PackageManager;
+import android.view.View;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -64,6 +68,7 @@ public class BarcodeScanner extends CordovaPlugin {
 
     private JSONArray requestArgs;
     private CallbackContext callbackContext;
+    private Application.ActivityLifecycleCallbacks captureLifecycleCallbacks;
 
     /**
      * Constructor.
@@ -136,6 +141,42 @@ public class BarcodeScanner extends CordovaPlugin {
 
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
+
+                // Register a lifecycle callback to hook into ZXing CaptureActivity when it appears
+                final Application app = that.cordova.getActivity().getApplication();
+                captureLifecycleCallbacks = new Application.ActivityLifecycleCallbacks() {
+                    @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {}
+                    @Override public void onActivityStarted(Activity activity) {}
+                    @Override public void onActivityPaused(Activity activity) {}
+                    @Override public void onActivityStopped(Activity activity) {}
+                    @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) {}
+                    @Override public void onActivityDestroyed(Activity activity) {}
+                    @Override public void onActivityResumed(final Activity activity) {
+                        if ("com.google.zxing.client.android.CaptureActivity".equals(activity.getClass().getName())) {
+                            // Post to UI thread to ensure views are laid out
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override public void run() {
+                                    try {
+                                        int backId = activity.getResources().getIdentifier("back_button", "id", activity.getPackageName());
+                                        if (backId != 0) {
+                                            View backButton = activity.findViewById(backId);
+                                            if (backButton != null) {
+                                                backButton.setOnClickListener(new View.OnClickListener() {
+                                                    @Override public void onClick(View v) {
+                                                        activity.finish();
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    } catch (Throwable t) {
+                                        Log.w(LOG_TAG, "Failed to hook back_button: " + t.getMessage());
+                                    }
+                                }
+                            });
+                        }
+                    }
+                };
+                app.registerActivityLifecycleCallbacks(captureLifecycleCallbacks);
 
                 Intent intentScan = new Intent(that.cordova.getActivity().getBaseContext(), CaptureActivity.class);
                 intentScan.setAction(Intents.Scan.ACTION);
@@ -217,6 +258,15 @@ public class BarcodeScanner extends CordovaPlugin {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == REQUEST_CODE && this.callbackContext != null) {
+            // Unregister lifecycle hook if set
+            try {
+                if (captureLifecycleCallbacks != null) {
+                    this.cordova.getActivity().getApplication().unregisterActivityLifecycleCallbacks(captureLifecycleCallbacks);
+                    captureLifecycleCallbacks = null;
+                }
+            } catch (Throwable t) {
+                Log.w(LOG_TAG, "Failed to unregister lifecycle callbacks: " + t.getMessage());
+            }
             if (resultCode == Activity.RESULT_OK) {
                 JSONObject obj = new JSONObject();
                 try {
